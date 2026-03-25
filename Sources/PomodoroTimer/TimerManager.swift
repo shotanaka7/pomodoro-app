@@ -87,6 +87,18 @@ final class TimerManager {
         start()
     }
 
+    func rhythmReset() {
+        timer?.invalidate()
+        timer = nil
+        currentPhase = .longBreak
+        remainingSeconds = longBreakDuration
+        completedWorkSessions = 0
+        currentSessionStartDate = Date()
+        isRunning = true
+        isPaused = false
+        startTimer()
+    }
+
     func startLunchBreak() {
         timer?.invalidate()
         timer = nil

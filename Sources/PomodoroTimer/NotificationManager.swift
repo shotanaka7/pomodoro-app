@@ -1,15 +1,21 @@
 import UserNotifications
 import AppKit
 
-final class NotificationManager: @unchecked Sendable {
+final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
 
-    private init() {}
+    private override init() {
+        super.init()
+        UNUserNotificationCenter.current().delegate = self
+    }
 
     func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {
                 print("Notification permission error: \(error)")
+            }
+            if !granted {
+                print("Notification permission not granted")
             }
         }
     }
@@ -41,5 +47,14 @@ final class NotificationManager: @unchecked Sendable {
         )
 
         UNUserNotificationCenter.current().add(request)
+    }
+
+    // フォアグラウンドでも通知を表示
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
     }
 }

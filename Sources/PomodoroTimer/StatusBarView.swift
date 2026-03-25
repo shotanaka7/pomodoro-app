@@ -8,8 +8,10 @@ struct StatusBarView: View {
             headerView
             timerDisplay
             controlButtons
+            rhythmResetButton
             lunchBreakSection
             statsView
+            debugNotificationButtons
             Divider()
             quitButton
         }
@@ -90,6 +92,16 @@ struct StatusBarView: View {
         }
     }
 
+    private var rhythmResetButton: some View {
+        Button(action: { timerManager.rhythmReset() }) {
+            Label("リズムリセット（15分休憩から再開）", systemImage: "arrow.trianglehead.2.counterclockwise")
+                .font(.caption)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .tint(.purple)
+    }
+
     private func controlButton(_ systemName: String, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 4) {
@@ -157,6 +169,26 @@ struct StatusBarView: View {
             }
         }
         .padding(.horizontal, 4)
+    }
+
+    // MARK: - Debug Notifications
+
+    private var debugNotificationButtons: some View {
+        VStack(spacing: 6) {
+            Divider()
+            Text("通知テスト")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            HStack(spacing: 6) {
+                ForEach([TimerPhase.work, .shortBreak, .longBreak, .lunchBreak], id: \.self) { phase in
+                    Button(phase.rawValue) {
+                        NotificationManager.shared.sendNotification(for: phase)
+                    }
+                    .font(.caption2)
+                    .buttonStyle(.bordered)
+                }
+            }
+        }
     }
 
     // MARK: - Quit
