@@ -27,6 +27,9 @@ final class NotificationManager: @unchecked Sendable {
         case .longBreak:
             content.title = "🎉 長休憩終了"
             content.body = "リフレッシュできましたか？次のセットを始めましょう！"
+        case .lunchBreak:
+            content.title = "🍱 お昼休憩終了"
+            content.body = "午後も頑張りましょう！"
         }
 
         content.sound = .default

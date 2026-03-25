@@ -8,6 +8,7 @@ struct StatusBarView: View {
             headerView
             timerDisplay
             controlButtons
+            lunchBreakSection
             statsView
             Divider()
             quitButton
@@ -40,6 +41,7 @@ struct StatusBarView: View {
         case .work: return .red
         case .shortBreak: return .green
         case .longBreak: return .blue
+        case .lunchBreak: return .orange
         }
     }
 
@@ -99,6 +101,33 @@ struct StatusBarView: View {
             .frame(width: 64, height: 48)
         }
         .buttonStyle(.bordered)
+    }
+
+    // MARK: - Lunch Break
+
+    private var lunchBreakSection: some View {
+        VStack(spacing: 8) {
+            Divider()
+            HStack {
+                Text("🍱 お昼休憩")
+                    .font(.caption)
+                Spacer()
+                Stepper(
+                    "\(timerManager.lunchBreakDuration / 60)分",
+                    value: $timerManager.lunchBreakDuration,
+                    in: (15 * 60)...(120 * 60),
+                    step: 15 * 60
+                )
+                .font(.caption)
+            }
+            Button(action: { timerManager.startLunchBreak() }) {
+                Label("お昼休憩を開始", systemImage: "fork.knife")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .tint(.orange)
+            .disabled(timerManager.currentPhase == .lunchBreak && timerManager.isRunning)
+        }
     }
 
     // MARK: - Stats

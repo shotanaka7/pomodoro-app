@@ -36,7 +36,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if timerManager.isRunning || timerManager.isPaused {
             let minutes = timerManager.remainingSeconds / 60
             let seconds = timerManager.remainingSeconds % 60
-            let emoji = timerManager.currentPhase == .work ? "🍅" : "☕"
+            let emoji: String
+            switch timerManager.currentPhase {
+            case .work: emoji = "🍅"
+            case .lunchBreak: emoji = "🍱"
+            default: emoji = "☕"
+            }
             button.title = " \(emoji) \(String(format: "%02d:%02d", minutes, seconds))"
         } else {
             button.title = ""

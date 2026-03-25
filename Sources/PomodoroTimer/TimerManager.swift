@@ -4,6 +4,7 @@ enum TimerPhase: String, Codable {
     case work = "作業"
     case shortBreak = "休憩"
     case longBreak = "長休憩"
+    case lunchBreak = "お昼休憩"
 }
 
 @MainActor
@@ -14,6 +15,7 @@ final class TimerManager {
     var shortBreakDuration: Int = 5 * 60
     var longBreakDuration: Int = 15 * 60
     var longBreakInterval: Int = 4
+    var lunchBreakDuration: Int = 60 * 60
 
     // State
     private(set) var currentPhase: TimerPhase = .work
@@ -45,6 +47,7 @@ final class TimerManager {
         case .work: return workDuration
         case .shortBreak: return shortBreakDuration
         case .longBreak: return longBreakDuration
+        case .lunchBreak: return lunchBreakDuration
         }
     }
 
@@ -82,6 +85,17 @@ final class TimerManager {
         timer = nil
         advancePhase()
         start()
+    }
+
+    func startLunchBreak() {
+        timer?.invalidate()
+        timer = nil
+        currentPhase = .lunchBreak
+        remainingSeconds = lunchBreakDuration
+        currentSessionStartDate = Date()
+        isRunning = true
+        isPaused = false
+        startTimer()
     }
 
     private func startTimer() {
@@ -124,6 +138,15 @@ final class TimerManager {
         let completedPhase = currentPhase
         NotificationManager.shared.sendNotification(for: completedPhase)
 
+        if completedPhase == .lunchBreak {
+            currentPhase = .work
+            remainingSeconds = workDuration
+            completedWorkSessions = 0
+            currentSessionStartDate = nil
+            onTick?()
+            return
+        }
+
         advancePhase()
         remainingSeconds = totalSecondsForCurrentPhase
         onTick?()
@@ -137,7 +160,7 @@ final class TimerManager {
             } else {
                 currentPhase = .shortBreak
             }
-        case .shortBreak, .longBreak:
+        case .shortBreak, .longBreak, .lunchBreak:
             currentPhase = .work
         }
         currentSessionStartDate = nil
