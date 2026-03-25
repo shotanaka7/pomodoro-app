@@ -1,9 +1,12 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+import SwiftUI
 
 @main
-struct PomodoroTimer {
-    static func main() {
-        print("Hello, world!")
+struct PomodoroTimerApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    var body: some Scene {
+        Settings {
+            EmptyView()
+        }
     }
 }
