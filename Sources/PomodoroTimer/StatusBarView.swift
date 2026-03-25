@@ -115,8 +115,8 @@ struct StatusBarView: View {
                 Stepper(
                     "\(timerManager.lunchBreakDuration / 60)分",
                     value: $timerManager.lunchBreakDuration,
-                    in: (15 * 60)...(120 * 60),
-                    step: 15 * 60
+                    in: (10 * 60)...(120 * 60),
+                    step: 10 * 60
                 )
                 .font(.caption)
             }
