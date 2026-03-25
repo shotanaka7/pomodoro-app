@@ -1,5 +1,8 @@
 import UserNotifications
 import AppKit
+import os
+
+private let logger = Logger(subsystem: "com.uxcentra.PomodoroTimer", category: "Notification")
 
 final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
@@ -10,13 +13,12 @@ final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificati
     }
 
     func requestPermission() {
+        logger.info("Requesting notification permission, bundleID=\(Bundle.main.bundleIdentifier ?? "nil")")
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                print("Notification permission error: \(error)")
-            }
-            if !granted {
-                print("Notification permission not granted")
-            }
+            logger.info("requestAuthorization result: granted=\(granted), error=\(String(describing: error))")
+        }
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            logger.info("Notification settings: auth=\(settings.authorizationStatus.rawValue), alert=\(settings.alertSetting.rawValue), sound=\(settings.soundSetting.rawValue)")
         }
     }
 
@@ -46,7 +48,14 @@ final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificati
             trigger: nil
         )
 
-        UNUserNotificationCenter.current().add(request)
+        logger.info("Sending notification for phase: \(completedPhase.rawValue)")
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                logger.error("Notification add error: \(error.localizedDescription)")
+            } else {
+                logger.info("Notification scheduled successfully")
+            }
+        }
     }
 
     // フォアグラウンドでも通知を表示
@@ -55,6 +64,7 @@ final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificati
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        logger.info("willPresent called - showing banner+sound")
         completionHandler([.banner, .sound])
     }
 }

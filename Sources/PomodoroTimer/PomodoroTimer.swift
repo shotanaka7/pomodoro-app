@@ -1,12 +1,12 @@
-import SwiftUI
+import AppKit
 
 @main
-struct PomodoroTimerApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
-    var body: some Scene {
-        Settings {
-            EmptyView()
-        }
+@MainActor
+struct PomodoroApp {
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        app.run()
     }
 }

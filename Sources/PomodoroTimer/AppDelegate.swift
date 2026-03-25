@@ -1,5 +1,8 @@
 import AppKit
 import SwiftUI
+import os
+
+private let logger = Logger(subsystem: "com.uxcentra.PomodoroTimer", category: "AppDelegate")
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -8,6 +11,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let timerManager = TimerManager()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        logger.info("applicationDidFinishLaunching called")
+
+        // 通知の初期化と権限リクエスト
+        _ = NotificationManager.shared
         NotificationManager.shared.requestPermission()
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)

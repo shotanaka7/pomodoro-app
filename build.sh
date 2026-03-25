@@ -27,6 +27,12 @@ cp "Resources/Info.plist" "$APP_BUNDLE/Contents/"
 # Create PkgInfo
 echo -n "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
 
+# Ad-hoc code sign (required for notifications)
+codesign -s - --force --deep "$APP_BUNDLE"
+
+# Register with LaunchServices (required for notification permissions)
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APP_BUNDLE"
+
 echo "✅ Build complete: $APP_BUNDLE"
 echo ""
 echo "To run:  open $APP_BUNDLE"
