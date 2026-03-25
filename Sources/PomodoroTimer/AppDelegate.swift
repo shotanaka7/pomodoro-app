@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let contentView = StatusBarView(timerManager: timerManager)
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 300, height: 400)
+        popover.contentSize = NSSize(width: 300, height: 580)
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(rootView: contentView)
 
