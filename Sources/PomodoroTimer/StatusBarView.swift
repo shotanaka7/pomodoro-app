@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatusBarView: View {
     @Bindable var timerManager: TimerManager
+    @State private var selectedSoundId: String = NotificationManager.shared.selectedSoundId
 
     var body: some View {
         VStack(spacing: 16) {
@@ -11,7 +12,7 @@ struct StatusBarView: View {
             rhythmResetButton
             lunchBreakSection
             statsView
-            debugNotificationButtons
+            soundPickerSection
             Divider()
             quitButton
         }
@@ -171,21 +172,25 @@ struct StatusBarView: View {
         .padding(.horizontal, 4)
     }
 
-    // MARK: - Debug Notifications
+    // MARK: - Sound Picker
 
-    private var debugNotificationButtons: some View {
+    private var soundPickerSection: some View {
         VStack(spacing: 6) {
             Divider()
-            Text("通知テスト")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            HStack(spacing: 6) {
-                ForEach([TimerPhase.work, .shortBreak, .longBreak, .lunchBreak], id: \.self) { phase in
-                    Button(phase.rawValue) {
-                        NotificationManager.shared.sendNotification(for: phase)
+            HStack {
+                Text("🔔 通知音")
+                    .font(.caption)
+                Spacer()
+                Picker("", selection: $selectedSoundId) {
+                    ForEach(NotificationSound.available) { sound in
+                        Text(sound.displayName).tag(sound.id)
                     }
-                    .font(.caption2)
-                    .buttonStyle(.bordered)
+                }
+                .labelsHidden()
+                .frame(width: 120)
+                .onChange(of: selectedSoundId) { _, newValue in
+                    NotificationManager.shared.selectedSoundId = newValue
+                    NotificationManager.shared.previewSound(newValue)
                 }
             }
         }

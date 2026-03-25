@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UserNotifications
 import os
 
 private let logger = Logger(subsystem: "com.uxcentra.PomodoroTimer", category: "AppDelegate")
@@ -14,7 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         logger.info("applicationDidFinishLaunching called")
 
         // 通知の初期化と権限リクエスト
-        _ = NotificationManager.shared
+        UNUserNotificationCenter.current().delegate = NotificationManager.shared
         NotificationManager.shared.requestPermission()
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)

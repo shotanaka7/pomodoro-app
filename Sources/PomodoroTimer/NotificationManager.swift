@@ -4,12 +4,39 @@ import os
 
 private let logger = Logger(subsystem: "com.uxcentra.PomodoroTimer", category: "Notification")
 
+struct NotificationSound: Identifiable, Hashable {
+    let id: String
+    let displayName: String
+
+    static let available: [NotificationSound] = [
+        NotificationSound(id: "default", displayName: "デフォルト"),
+        NotificationSound(id: "Basso", displayName: "Basso"),
+        NotificationSound(id: "Blow", displayName: "Blow"),
+        NotificationSound(id: "Bottle", displayName: "Bottle"),
+        NotificationSound(id: "Frog", displayName: "Frog"),
+        NotificationSound(id: "Funk", displayName: "Funk"),
+        NotificationSound(id: "Glass", displayName: "Glass"),
+        NotificationSound(id: "Hero", displayName: "Hero"),
+        NotificationSound(id: "Morse", displayName: "Morse"),
+        NotificationSound(id: "Ping", displayName: "Ping"),
+        NotificationSound(id: "Pop", displayName: "Pop"),
+        NotificationSound(id: "Purr", displayName: "Purr"),
+        NotificationSound(id: "Sosumi", displayName: "Sosumi"),
+        NotificationSound(id: "Submarine", displayName: "Submarine"),
+        NotificationSound(id: "Tink", displayName: "Tink"),
+    ]
+}
+
 final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
 
+    var selectedSoundId: String {
+        get { UserDefaults.standard.string(forKey: "notificationSound") ?? "default" }
+        set { UserDefaults.standard.set(newValue, forKey: "notificationSound") }
+    }
+
     private override init() {
         super.init()
-        UNUserNotificationCenter.current().delegate = self
     }
 
     func requestPermission() {
@@ -17,8 +44,13 @@ final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificati
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             logger.info("requestAuthorization result: granted=\(granted), error=\(String(describing: error))")
         }
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            logger.info("Notification settings: auth=\(settings.authorizationStatus.rawValue), alert=\(settings.alertSetting.rawValue), sound=\(settings.soundSetting.rawValue)")
+    }
+
+    func previewSound(_ soundId: String) {
+        if soundId == "default" {
+            NSSound.beep()
+        } else if let sound = NSSound(named: NSSound.Name(soundId)) {
+            sound.play()
         }
     }
 
@@ -40,7 +72,11 @@ final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificati
             content.body = "午後も頑張りましょう！"
         }
 
-        content.sound = .default
+        if selectedSoundId == "default" {
+            content.sound = .default
+        } else {
+            content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "/System/Library/Sounds/\(selectedSoundId).aiff"))
+        }
 
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
@@ -64,7 +100,6 @@ final class NotificationManager: NSObject, @unchecked Sendable, UNUserNotificati
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        logger.info("willPresent called - showing banner+sound")
         completionHandler([.banner, .sound])
     }
 }
